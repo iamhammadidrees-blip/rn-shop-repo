@@ -19,8 +19,8 @@ export default function RootLayout() {
             />
 
             <Stack.Screen
-                name='(Cart)'
-                options={{ presentation: 'modal', title: 'Shoppnig Cart' }}
+                name='cart'
+                options={{ presentation: 'modal', title: 'Shopping Cart' }}
             />
 
 <Stack.Screen
