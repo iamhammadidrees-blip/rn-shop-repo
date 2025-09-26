@@ -5,22 +5,20 @@ import ProductListItem from "../components/product-list-item";
 import { ListHeader } from "../components/list-header";
 
 const Home = () => {
-    const renderProduct = ({ item }: { item: any }) => (
-        <ProductListItem product={item} />
-    );
 
     return (
-        <View style={styles.container}>
-            <ListHeader categories={CATEGORIES} />
-            <Text style={styles.title}>Shop</Text>
+        <View>
             <FlatList
                 data={PRODUCTS}
-                renderItem={renderProduct}
+                renderItem={({ item }) => <ProductListItem product={item} />}
                 keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={true}
-            />
-        </View>
+                numColumns={2}
+                ListHeaderComponent={<ListHeader categories={CATEGORIES} />}
+                contentContainerStyle={styles.flatListContent}
+                columnWrapperStyle={styles.flatListColumn}
+                style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+                />
+        </View>    
     );
 };
 
@@ -43,5 +41,11 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         paddingVertical: 8,
+    },
+    flatListContent: {
+        paddingBottom: 20,
+    },
+    flatListColumn: {
+        justifyContent: 'space-between',
     },
 });
