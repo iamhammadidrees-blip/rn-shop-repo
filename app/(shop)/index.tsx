@@ -3,9 +3,11 @@ import { PRODUCTS } from "../../assets/products";
 import { CATEGORIES } from "../../assets/categories";
 import ProductListItem from "../components/product-list-item";
 import { ListHeader } from "../components/list-header";
+import { router } from "expo-router";
+import Auth from "../auth";
+
 
 const Home = () => {
-
     return (
         <View>
             <FlatList
@@ -17,9 +19,9 @@ const Home = () => {
                 contentContainerStyle={styles.flatListContent}
                 columnWrapperStyle={styles.flatListColumn}
                 style={{ paddingHorizontal: 10, paddingVertical: 5 }}
-                />
+                /> 
         </View>    
-    );
+    ); 
 };
 
 export default Home;

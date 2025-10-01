@@ -33,3 +33,24 @@ export const CATEGORIES: Category[] = [
     ),
   },
 ];
+
+export const getCategoryAndProducts = (slug: string) => {
+  const category = CATEGORIES.find(cat => cat.slug === slug);
+  
+  if (!category) {
+    return {
+      data: null,
+      error: { message: 'Category not found' },
+      isLoading: false
+    };
+  }
+
+  return {
+    data: {
+      category,
+      products: category.products
+    },
+    error: null,
+    isLoading: false
+  };
+};

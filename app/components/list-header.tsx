@@ -11,15 +11,14 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import { CATEGORIES } from '../../assets/categories';
 import { styles } from './list-header-styles';
+import { useCartStore } from '../store/cart-store';
 
 export const ListHeader = ({
   categories,
 }: {
   categories: any[]; // Temporary fix - replace with proper type later
 }) => {
-  // Temporary fix - comment out missing imports
-  // const { getItemCount } = useCartStore();
-  const getItemCount = () => 0; // Mock function
+  const { getItemCount } = useCartStore();
 
   const handleSignOut = async () => {
     // await supabase.auth.signOut();
@@ -76,7 +75,7 @@ export const ListHeader = ({
         <FlatList
           data={CATEGORIES}
           renderItem={({ item }) => (
-            <Link asChild href={`/categories${item.slug}`}>
+            <Link asChild href={`/categories/${item.slug}`}>
               <Pressable style={styles.category}>
                 <Image
                   source={{ uri: item.imageUrl }}
