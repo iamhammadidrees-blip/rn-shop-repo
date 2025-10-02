@@ -7,11 +7,13 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { CATEGORIES } from '../../assets/categories';
 import { styles } from './list-header-styles';
 import { useCartStore } from '../store/cart-store';
+import { useAuth } from '../providers/auth-provider';
 
 export const ListHeader = ({
   categories,
@@ -19,10 +21,30 @@ export const ListHeader = ({
   categories: any[]; // Temporary fix - replace with proper type later
 }) => {
   const { getItemCount } = useCartStore();
+  const { signOut, user } = useAuth();
 
   const handleSignOut = async () => {
-    // await supabase.auth.signOut();
-    console.log('Sign out clicked');
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            const { error } = await signOut();
+            if (error) {
+              Alert.alert("Error", "Failed to sign out. Please try again.");
+            }
+            // Navigation will happen automatically via auth provider
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -34,7 +56,7 @@ export const ListHeader = ({
               source={{ uri: 'https://static.everypixel.com/ep-pixabay/0329/8099/0858/84037/3298099085884037069-head.png' }}
               style={styles.avatarImage}
             />
-            <Text style={styles.avatarText}>hey ! its Hammad</Text>
+            <Text style={styles.avatarText}>Hey! {user?.email ? user.email.split('@')[0] : 'User'}</Text>
           </View>
         </View>
         <View style={styles.headerRight}>

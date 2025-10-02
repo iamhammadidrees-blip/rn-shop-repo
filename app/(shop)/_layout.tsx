@@ -1,48 +1,64 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { useAuth } from '../providers/auth-provider';
+
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>['name'];
+  color: string;
+}) {
+  return <FontAwesome size={24} {...props} style={{ color: '#1BC464' }} />;
+}
 
 const TabsLayout = () => {
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <StatusBar style="dark" backgroundColor="#FFD700" />
-            <Tabs
-                screenOptions={{
-                    tabBarPosition: 'bottom',
-                    tabBarStyle: {
-                        backgroundColor: '#fff',
-                        borderTopWidth: 1,
-                        borderTopColor: '#e0e0e0',
-                        height: 60,
-                    },
-                    tabBarActiveTintColor: '#4CAF50',
-                    tabBarInactiveTintColor: '#999',
-                }}
-            >
-                <Tabs.Screen 
-                    name='index' 
-                    options={{
-                        headerShown: false,
-                        title: 'Home',
-                        tabBarIcon: ({ color, size }) => (
-                            <Ionicons name="home" size={size} color={color} />
-                        ),
-                    }}
-                />
-                <Tabs.Screen 
-                    name='orders' 
-                    options={{
-                        headerShown: false,
-                        title: 'Orders',
-                        tabBarIcon: ({ color, size }) => (
-                            <Ionicons name="list" size={size} color={color} />
-                        ),
-                    }}
-                />
-            </Tabs>
-        </SafeAreaView>
-    );
+  const { session, mounting } = useAuth();
+
+  if (mounting) return <ActivityIndicator />;
+  if (!session) return <Redirect href='/auth' />;
+
+  return (
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: '#1BC464',
+          tabBarInactiveTintColor: 'gray',
+          tabBarLabelStyle: { fontSize: 16 },
+          tabBarStyle: {
+            paddingTop: 6,
+            paddingBottom: 20,
+            marginBottom: 10,
+          },
+          headerShown: false,
+        }}
+      >
+        <Tabs.Screen
+          name='index'
+          options={{
+            title: 'shop',
+            tabBarIcon(props) {
+              return <TabBarIcon {...props} name='shopping-cart' />;
+            },
+          }}
+        />
+        <Tabs.Screen
+          name='orders'
+          options={{
+            title: 'Orders',
+            tabBarIcon(props) {
+              return <TabBarIcon {...props} name='book' />;
+            },
+          }}
+        />
+      </Tabs>
+    </SafeAreaView>
+  );
 };
 
 export default TabsLayout;
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+});
