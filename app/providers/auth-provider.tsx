@@ -12,7 +12,7 @@ type AuthData = {
   session: Session | null;
   mounting: boolean;
   user: any;
-  signOut: () => Promise<{ error: any }>;
+  signOut: () => Promise<{ error: unknown | null }>;
 };
 
 const AuthContext = createContext<AuthData>({
@@ -35,24 +35,20 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   } | null>(null);
   const [mounting, setMounting] = useState(true);
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Sign out error:', error);
+  const signOut = async (): Promise<{ error: unknown | null }> => {
+    const result = await supabase.auth.signOut();
+    if (!result.error) {
+      setSession(null);
+      setUser(null);
     }
-    return { error };
+    return { error: result.error };
   };
 
   useEffect(() => {
     const fetchSession = async () => {
       const {
         data: { session },
-        error: sessionError
       } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.error('Session fetch error:', sessionError);
-      }
 
       setSession(session);
 
@@ -68,38 +64,15 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         } else {
           setUser(user);
         }
-      } else {
-        setUser(null); // Clear user when no session
       }
 
       setMounting(false);
     };
 
     fetchSession();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      
-      if (session) {
-        // User signed in - fetch user data
-        const { data: user, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (error) {
-          console.error('error', error);
-        } else {
-          setUser(user);
-        }
-      } else {
-        // User signed out - clear user data
-        setUser(null);
-      }
     });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   return (

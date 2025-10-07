@@ -34,42 +34,75 @@ import {
       },
     });
   
-    const signIn = async (data: zod.infer<typeof authSchema>) => {
-      const { error } = await supabase.auth.signInWithPassword(data);
+  const signIn = async (data: zod.infer<typeof authSchema>) => {
+    console.log('Attempting sign in with:', data.email);
+    const { data: signInData, error } = await supabase.auth.signInWithPassword(data);
+
+    if (error) {
+      console.error('Sign in error:', error);
+      Toast.show(`Sign in failed: ${error.message}`, {
+        type: 'danger',
+        placement: 'top',
+        duration: 3000,
+      });
+    } else {
+      console.log('Sign in successful, session:', signInData?.session);
+      Toast.show('Signed in successfully', {
+        type: 'success',
+        placement: 'top',
+        duration: 1500,
+      });
+      // Navigation will happen automatically via the useAuth hook
+    }
+  };
   
-      if (error) {
-        Toast.show(error.message, {
-          type: 'danger',
-          placement: 'top',
-          duration: 3000,
-        });
-      } else {
-        Toast.show('Signed in successfully', {
-          type: 'success',
-          placement: 'top',
-          duration: 1500,
-        });
-        // Navigation will happen automatically via the useAuth hook
-      }
-    };
-  
-    const signUp = async (data: zod.infer<typeof authSchema>) => {
-      const { error } = await supabase.auth.signUp(data);
-  
-      if (error) {
-        Toast.show(error.message, {
-          type: 'danger',
-          placement: 'top',
-          duration: 3000,
-        });
-      } else {
-        Toast.show('Check your email for verification', {
-          type: 'success',
-          placement: 'top',
-          duration: 3000,
-        });
-      }
-    };
+  const signUp = async (data: zod.infer<typeof authSchema>) => {
+    console.log('Attempting sign up with:', data.email);
+    const { data: signUpData, error } = await supabase.auth.signUp(data);
+
+    if (error) {
+      console.error('Sign up error:', error);
+      Toast.show(`Sign up failed: ${error.message}`, {
+        type: 'danger',
+        placement: 'top',
+        duration: 3000,
+      });
+      return;
+    }
+
+    console.log('Sign up response:', signUpData);
+
+    // If email confirmation is disabled, Supabase returns a session here
+    if (signUpData?.session) {
+      console.log('Sign up successful with session:', signUpData.session);
+      Toast.show('Signed up successfully', {
+        type: 'success',
+        placement: 'top',
+        duration: 1500,
+      });
+      return; // navigation handled by session redirect
+    }
+
+    // If confirmation is required, try to sign in (will fail with not confirmed)
+    console.log('No session from sign up, attempting sign in...');
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword(data);
+    if (signInError) {
+      console.log('Sign in after sign up failed:', signInError);
+      Toast.show(`Check your email for verification. Error: ${signInError.message}`, {
+        type: 'success',
+        placement: 'top',
+        duration: 3000,
+      });
+    } else {
+      console.log('Sign in after sign up successful:', signInData?.session);
+      Toast.show('Signed in successfully', {
+        type: 'success',
+        placement: 'top',
+        duration: 1500,
+      });
+      // navigation handled by session redirect
+    }
+  };
   
     return (
       <ImageBackground
